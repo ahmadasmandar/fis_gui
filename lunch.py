@@ -5,6 +5,8 @@ import platform
 import sys
 from PyQt5.QtWidgets import QFileDialog
 
+import serial.tools.list_ports
+
 
 import requests
 
@@ -15,14 +17,20 @@ class test_lunch(QtWidgets.QMainWindow):
         uic.loadUi('lunch.ui', self)
         self.platform = platform.system()
         print(self.platform)
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            if p.device != "COM1":
+                self.port = p.device
+
         self.serial = QtSerialPort.QSerialPort(
-            'COM5',
+            self.port,
             baudRate=QtSerialPort.QSerialPort.Baud115200,
             readyRead=self.receive
         )
 
         self.lunch.clicked.connect(self.onClicked)
         self.folder.clicked.connect(self.openDialog)
+        self.send_b.clicked.connect(self.send)
 
     def onClicked(self, checked):
         self.lunch.setText("Disconnect" if checked else "Connect")
@@ -44,6 +52,10 @@ class test_lunch(QtWidgets.QMainWindow):
             text = self.serial.readLine().data().decode()
             text = text.rstrip('\r\n')
             self.terminal.append(text)
+
+    def send(self):
+        self.message_le = self.message.text()
+        self.serial.write(self.message_le.text().encode())
 
 
 app = QtWidgets.QApplication([])
