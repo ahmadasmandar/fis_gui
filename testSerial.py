@@ -45,8 +45,8 @@ class Widget(QtWidgets.QWidget):
         self.button.setText("Disconnect" if checked else "Connect")
         if checked:
             if not self.serial.isOpen():
-            if not self.serial.open(QtCore.QIODevice.ReadWrite):
-                self.button.setChecked(False)
+                if not self.serial.open(QtCore.QIODevice.ReadWrite):
+                    self.button.setChecked(False)
         else:
             self.serial.close()
 

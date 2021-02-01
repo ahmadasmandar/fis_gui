@@ -31,6 +31,7 @@ class test_lunch(QtWidgets.QMainWindow):
         self.lunch.clicked.connect(self.onClicked)
         self.folder.clicked.connect(self.openDialog)
         self.send_b.clicked.connect(self.send)
+        self.data_send.setText("Send")
 
     def onClicked(self, checked):
         self.lunch.setText("Disconnect" if checked else "Connect")
@@ -38,6 +39,7 @@ class test_lunch(QtWidgets.QMainWindow):
             if not self.serial.isOpen():
                 if not self.serial.open(QtCore.QIODevice.ReadWrite):
                     self.lunch.setChecked(False)
+                    self.serial.write(" ".encode())
         else:
             self.serial.close()
 
@@ -54,8 +56,12 @@ class test_lunch(QtWidgets.QMainWindow):
             self.terminal.append(text)
 
     def send(self):
-        self.message_le = self.message.text()
-        self.serial.write(self.message_le.text().encode())
+        try:
+            self.message_le = self.data_send.text()
+            self.terminal.append(self.message_le)
+            self.serial.write(self.message_le.encode())
+        except Exception as er:
+            print(er)
 
 
 app = QtWidgets.QApplication([])

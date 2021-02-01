@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>953</width>
-    <height>643</height>
+    <width>712</width>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,13 +17,32 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
       <item>
-       <widget class="QLineEdit" name="message">
+       <widget class="QLineEdit" name="data_send">
         <property name="minimumSize">
          <size>
           <width>0</width>
           <height>40</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
        </widget>
       </item>
@@ -47,13 +66,11 @@
        <widget class="QTextBrowser" name="terminal">
         <property name="font">
          <font>
-          <family>Lucida Sans Unicode</family>
+          <family>Fira Code Medium</family>
+          <pointsize>8</pointsize>
          </font>
         </property>
        </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_5"/>
       </item>
      </layout>
     </item>
@@ -75,13 +92,34 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="leftMargin">
-         <number>20</number>
+         <number>10</number>
+        </property>
+        <property name="topMargin">
+         <number>10</number>
         </property>
         <property name="rightMargin">
-         <number>20</number>
+         <number>10</number>
+        </property>
+        <property name="bottomMargin">
+         <number>10</number>
         </property>
         <item>
          <widget class="QPushButton" name="lunch">
@@ -190,7 +228,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Folder</string>
+           <string>-</string>
           </property>
          </widget>
         </item>
