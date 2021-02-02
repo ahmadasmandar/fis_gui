@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore
 import os
 import platform
@@ -6,9 +5,6 @@ import sys
 from PyQt5.QtWidgets import QFileDialog
 
 import serial.tools.list_ports
-
-
-import requests
 
 
 class test_lunch(QtWidgets.QMainWindow):
@@ -20,13 +16,13 @@ class test_lunch(QtWidgets.QMainWindow):
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
             if p.device != "COM1":
-                self.port = p.device
-
-        self.serial = QtSerialPort.QSerialPort(
-            self.port,
-            baudRate=QtSerialPort.QSerialPort.Baud115200,
-            readyRead=self.receive
-        )
+                if p.device:
+                    self.port = p.device
+                    self.serial = QtSerialPort.QSerialPort(
+                        self.port,
+                        baudRate=QtSerialPort.QSerialPort.Baud115200,
+                        readyRead=self.receive
+                    )
 
         self.lunch.clicked.connect(self.onClicked)
         self.folder.clicked.connect(self.openDialog)
