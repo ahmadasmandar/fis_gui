@@ -11,11 +11,11 @@ class test_lunch(QtWidgets.QMainWindow):
     def __init__(self):
         super(test_lunch, self).__init__()
         uic.loadUi('lunch.ui', self)
-        self.platform = platform.system()
-        print(self.platform)
+        # self.platform = platform.system()
+        # print(self.platform)
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            if p.device != "COM1":
+            if "1A86" in p.hwid:
                 if p.device:
                     self.port = p.device
                     self.serial = QtSerialPort.QSerialPort(
