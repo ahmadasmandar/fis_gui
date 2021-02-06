@@ -1,3 +1,7 @@
 {
+<<<<<<< HEAD
   "python.pythonPath": "C:\\Users\\Ahmad Asmandar\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+=======
+  "python.formatting.provider": "autopep8"
+>>>>>>> 94015f7fe5d9bdf16899d277006551e669914af8
 }

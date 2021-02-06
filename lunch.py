@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore
 import os
-import platform
 import sys
 from PyQt5.QtWidgets import QFileDialog
 
@@ -11,11 +10,11 @@ class test_lunch(QtWidgets.QMainWindow):
     def __init__(self):
         super(test_lunch, self).__init__()
         uic.loadUi('lunch.ui', self)
-        self.platform = platform.system()
-        print(self.platform)
+        # self.platform = platform.system()
+        # print(self.platform)
         ports = list(serial.tools.list_ports.comports())
         for p in ports:
-            if p.device != "COM1":
+            if "1A86" in p.hwid:
                 if p.device:
                     self.port = p.device
                     self.serial = QtSerialPort.QSerialPort(
@@ -27,6 +26,7 @@ class test_lunch(QtWidgets.QMainWindow):
         self.lunch.clicked.connect(self.onClicked)
         self.folder.clicked.connect(self.openDialog)
         self.send_b.clicked.connect(self.send)
+        self.save_file.clicked.connect(self.saveFile)
         self.data_send.setText("Send")
 
     def onClicked(self, checked):
@@ -58,6 +58,23 @@ class test_lunch(QtWidgets.QMainWindow):
             self.serial.write(self.message_le.encode())
         except Exception as er:
             print(er)
+
+    def saveFile(self):
+
+        # self.file = str(QFileDialog.getExistingDirectory(
+        #     self, "Select Directory"))
+        # os.system("   echo This directory {}".format(self.file))
+        # self.terminal.append(self.file)
+        name = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save file", "", "Text files (*.txt)")[0]
+        if not name:
+            return
+        else:
+            with open(name, 'w') as file:
+                file = open(name, 'w')
+                text = str(self.terminal.toPlainText())
+                file.write(text)
+                file.close()
 
 
 app = QtWidgets.QApplication([])
