@@ -1,15 +1,17 @@
+import serial.tools.list_ports
 from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore
 import os
 import sys
 from PyQt5.QtWidgets import QFileDialog
-
-import serial.tools.list_ports
+from Cleaner import Cleaner
 
 
 class test_lunch(QtWidgets.QMainWindow):
     def __init__(self):
         super(test_lunch, self).__init__()
         uic.loadUi('lunch.ui', self)
+        self.CleanAgent = Cleaner()
+
         # self.platform = platform.system()
         # print(self.platform)
         ports = list(serial.tools.list_ports.comports())
@@ -24,7 +26,7 @@ class test_lunch(QtWidgets.QMainWindow):
                     )
 
         self.lunch.clicked.connect(self.onClicked)
-        self.folder.clicked.connect(self.openDialog)
+        self.clean_data.clicked.connect(self.openDialog)
         self.send_b.clicked.connect(self.send)
         self.save_file.clicked.connect(self.saveFile)
         self.data_send.setText("Send")
@@ -42,7 +44,10 @@ class test_lunch(QtWidgets.QMainWindow):
     def openDialog(self):
         self.file = str(QFileDialog.getExistingDirectory(
             self, "Select Directory"))
-        os.system("   echo This directory {}".format(self.file))
+        # os.system("   echo This directory {}".format(self.file))
+        self.CleanAgent.cleanTxtfiles(self.file)
+        self.terminal.append('\n')
+        self.terminal.append("Files have been cleaned")
 
     @ QtCore.pyqtSlot()
     def receive(self):
@@ -56,25 +61,30 @@ class test_lunch(QtWidgets.QMainWindow):
             self.message_le = self.data_send.text()
             self.terminal.append(self.message_le)
             self.serial.write(self.message_le.encode())
-        except Exception as er:
-            print(er)
+        except Exception:
+            ex_type, ex, tb = sys.exc_info()
+            print(ex)
 
     def saveFile(self):
-
-        # self.file = str(QFileDialog.getExistingDirectory(
-        #     self, "Select Directory"))
-        # os.system("   echo This directory {}".format(self.file))
-        # self.terminal.append(self.file)
-        name = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save file", "", "Text files (*.txt)")[0]
-        if not name:
-            return
-        else:
-            with open(name, 'w') as file:
-                file = open(name, 'w')
-                text = str(self.terminal.toPlainText())
-                file.write(text)
-                file.close()
+        try:
+            self.name = QtWidgets.QFileDialog.getSaveFileName(
+                self, "Save file", "", "Text files (*.txt)")[0]
+            if not self.name:
+                return
+            else:
+                self.Foldercontent = self.CleanAgent.getFolderContent(
+                    self.name)
+                with open(self.name, 'w') as file:
+                    file = open(self.name, 'w')
+                    text = str(self.terminal.toPlainText())
+                    file.write(text)
+                    file.write('\n')
+                    # for item in self.Foldercontent:
+                    #     file.write(item)
+                    #     file.write('\n')
+                    file.close()
+        except Exception as er:
+            print(er)
 
 
 app = QtWidgets.QApplication([])
