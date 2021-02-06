@@ -27,6 +27,7 @@ class test_lunch(QtWidgets.QMainWindow):
         self.lunch.clicked.connect(self.onClicked)
         self.folder.clicked.connect(self.openDialog)
         self.send_b.clicked.connect(self.send)
+        self.save_file.clicked.connect(self.saveFile)
         self.data_send.setText("Send")
 
     def onClicked(self, checked):
@@ -58,6 +59,22 @@ class test_lunch(QtWidgets.QMainWindow):
             self.serial.write(self.message_le.encode())
         except Exception as er:
             print(er)
+
+    def saveFile(self):
+
+        # self.file = str(QFileDialog.getExistingDirectory(
+        #     self, "Select Directory"))
+        # os.system("   echo This directory {}".format(self.file))
+        # self.terminal.append(self.file)
+        name = QtWidgets.QFileDialog.getSaveFileName(
+            self, "Save file", "", "Text files (*.txt)")[0]
+        with open(name, 'w') as file:
+            if not name:
+                return
+            file = open(name, 'w')
+            text = str(self.terminal.toPlainText())
+            file.write(text)
+            file.close()
 
 
 app = QtWidgets.QApplication([])

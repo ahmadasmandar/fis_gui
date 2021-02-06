@@ -93,7 +93,7 @@ background: white;
        </spacer>
       </item>
       <item>
-       <widget class="QTextBrowser" name="terminal">
+       <widget class="QTextEdit" name="terminal">
         <property name="font">
          <font>
           <family>Fira Code Medium</family>
@@ -233,7 +233,7 @@ background: white;
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="folder_3">
+         <widget class="QPushButton" name="save_file">
           <property name="minimumSize">
            <size>
             <width>199</width>
@@ -255,7 +255,7 @@ background: white;
            </font>
           </property>
           <property name="text">
-           <string>-</string>
+           <string>Save</string>
           </property>
          </widget>
         </item>
