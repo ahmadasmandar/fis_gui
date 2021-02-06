@@ -68,13 +68,14 @@ class test_lunch(QtWidgets.QMainWindow):
         # self.terminal.append(self.file)
         name = QtWidgets.QFileDialog.getSaveFileName(
             self, "Save file", "", "Text files (*.txt)")[0]
-        with open(name, 'w') as file:
-            if not name:
-                return
-            file = open(name, 'w')
-            text = str(self.terminal.toPlainText())
-            file.write(text)
-            file.close()
+        if not name:
+            return
+        else:
+            with open(name, 'w') as file:
+                file = open(name, 'w')
+                text = str(self.terminal.toPlainText())
+                file.write(text)
+                file.close()
 
 
 app = QtWidgets.QApplication([])
