@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore
 import os
-import platform
 import sys
 from PyQt5.QtWidgets import QFileDialog
 
