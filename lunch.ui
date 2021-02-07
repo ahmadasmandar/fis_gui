@@ -16,7 +16,7 @@
   <property name="styleSheet">
    <string notr="true">QMainWindow{
   border-radius: 25px;
-background: #1a237e;
+background: #283593;
 
 
 }
@@ -97,7 +97,7 @@ background: white;
         <property name="font">
          <font>
           <family>Fira Code Medium</family>
-          <pointsize>8</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
        </widget>
@@ -259,6 +259,33 @@ background: white;
           </property>
           <property name="text">
            <string>Clean</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="exc_com">
+          <property name="minimumSize">
+           <size>
+            <width>199</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            <kerning>true</kerning>
+           </font>
+          </property>
+          <property name="text">
+           <string>Exe</string>
           </property>
          </widget>
         </item>

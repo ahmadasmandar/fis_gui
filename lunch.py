@@ -30,6 +30,10 @@ class test_lunch(QtWidgets.QMainWindow):
         self.send_b.clicked.connect(self.send)
         self.save_file.clicked.connect(self.saveFile)
         self.data_send.setText("Send")
+        self.exc_com.clicked.connect(self.excute)
+
+    def excute(self):
+        os.system("start cmd /k echo hallo world!!")
 
     def onClicked(self, checked):
         self.lunch.setText("Disconnect" if checked else "Connect")
