@@ -2,7 +2,6 @@ import serial.tools.list_ports
 
 ports = list(serial.tools.list_ports.comports())
 for p in ports:
-  if "1A86" in p.hwid:
-    print("ping")
-    print(p.hwid)
+    if "0403" in p.hwid:
+        print(p)
 #################### D2xx######################
