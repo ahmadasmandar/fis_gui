@@ -10,7 +10,7 @@ import traceback
 class test_lunch(QtWidgets.QMainWindow):
     def __init__(self):
         super(test_lunch, self).__init__()
-        uic.loadUi('lunch.ui', self)
+        uic.loadUi("lunch.ui", self)
         self.CleanAgent = Cleaner()
         self.available = False
 
@@ -24,9 +24,7 @@ class test_lunch(QtWidgets.QMainWindow):
                         self.available = True
                         self.port = p.device
                         self.serial = QtSerialPort.QSerialPort(
-                            self.port,
-                            baudRate=QtSerialPort.QSerialPort.Baud115200,
-                            readyRead=self.receive
+                            self.port, baudRate=QtSerialPort.QSerialPort.Baud115200, readyRead=self.receive
                         )
                         self.lunch.setStyleSheet("background-color : #fdd835")
                     else:
@@ -34,10 +32,8 @@ class test_lunch(QtWidgets.QMainWindow):
 
             if not self.available:
                 self.lunch.setStyleSheet("background-color : #ef5350")
-                self.terminal.append(
-                    "Flourine Tracer not detected!! please connect the device and reluch the program")
-                self.terminal.setStyleSheet(
-                    'color: #ef5350 ')
+                self.terminal.append("Flourine Tracer not detected!! please connect the device and relunch the program")
+                self.terminal.setStyleSheet("color: #ef5350 ")
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -52,7 +48,7 @@ class test_lunch(QtWidgets.QMainWindow):
         self.exc_com.clicked.connect(self.excute)
 
     def excute(self):
-        #os.system("start cmd /k echo hallo world!!")
+        # os.system("start cmd /k echo hallo world!!")
         self.CleanAgent.exportExcel()
         self.terminal.append("Files Exported ")
 
@@ -68,8 +64,7 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.lunch.setStyleSheet("background-color : #66bb6a")
                 self.serial.open(QtCore.QIODevice.ReadWrite)
                 self.terminal.append("device is connected")
-                self.terminal.setStyleSheet(
-                    'color: green ')
+                self.terminal.setStyleSheet("color: green ")
                 if not self.serial.isOpen():
                     if not self.serial.open(QtCore.QIODevice.ReadWrite):
                         self.lunch.setChecked(False)
@@ -87,25 +82,23 @@ class test_lunch(QtWidgets.QMainWindow):
 
     def openDialog(self):
         try:
-            self.file = str(QFileDialog.getExistingDirectory(
-                self, "Select Directory"))
+            self.file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             # os.system("   echo This directory {}".format(self.file))
             self.CleanAgent.cleanTxtfiles(self.file)
-            self.terminal.append('\n')
+            self.terminal.append("\n")
             self.terminal.append("Files have been cleaned")
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** Exception:")
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
 
-    @ QtCore.pyqtSlot()
+    @QtCore.pyqtSlot()
     def receive(self):
         try:
             while self.serial.canReadLine():
                 text = self.serial.readLine().data().decode()
-                text = text.rstrip('\r\n')
-                self.terminal.setStyleSheet(
-                    'color: black ')
+                text = text.rstrip("\r\n")
+                self.terminal.setStyleSheet("color: black ")
                 self.terminal.append(text)
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -115,18 +108,16 @@ class test_lunch(QtWidgets.QMainWindow):
     def send(self):
         try:
             if not self.serial.isOpen():
-                self.terminal.setStyleSheet(
-                    'color: red ')
+                self.terminal.setStyleSheet("color: red ")
                 self.terminal.append("please connect to the device first")
 
                 return
             else:
-                self.terminal.setStyleSheet(
-                    'color: black ')
+                self.terminal.setStyleSheet("color: black ")
                 self.message_le = self.data_send.text()
                 if "Send" in self.message_le:
-                    self.terminal.append('\n')
-                    self.serial.write('\n'.encode())
+                    self.terminal.append("\n")
+                    self.serial.write("\n".encode())
                 else:
                     self.terminal.append(self.message_le)
                     self.serial.write(self.message_le.encode())
@@ -138,18 +129,16 @@ class test_lunch(QtWidgets.QMainWindow):
 
     def saveFile(self):
         try:
-            self.name = QtWidgets.QFileDialog.getSaveFileName(
-                self, "Save file", "", "Text files (*.txt)")[0]
+            self.name = QtWidgets.QFileDialog.getSaveFileName(self, "Save file", "", "Text files (*.txt)")[0]
             if not self.name:
                 return
             else:
-                self.Foldercontent = self.CleanAgent.getFolderContent(
-                    self.name)
-                with open(self.name, 'w') as file:
-                    file = open(self.name, 'w')
+                self.Foldercontent = self.CleanAgent.getFolderContent(self.name)
+                with open(self.name, "w") as file:
+                    file = open(self.name, "w")
                     text = str(self.terminal.toPlainText())
                     file.write(text)
-                    file.write('\n')
+                    file.write("\n")
                     # for item in self.Foldercontent:
                     #     file.write(item)
                     #     file.write('\n')
