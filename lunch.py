@@ -1,10 +1,11 @@
 import serial.tools.list_ports
-from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore
+from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore, QtGui
 import os
 import sys
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from Cleaner import Cleaner
 import traceback
+import signal
 
 
 class test_lunch(QtWidgets.QMainWindow):
@@ -13,7 +14,9 @@ class test_lunch(QtWidgets.QMainWindow):
         uic.loadUi("lunch.ui", self)
         self.CleanAgent = Cleaner()
         self.available = False
-
+        self.font = QtGui.QFont()
+        self.font.setFamily("Arial")
+        self.font.setPointSize(15)
         # self.platform = platform.system()
         # print(self.platform)
         try:
@@ -40,13 +43,22 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** Exception:", exc_type)
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
 
+        ######################## Buttons #######################################
+
         self.lunch.clicked.connect(self.onClicked)
         self.clean_data.clicked.connect(self.openDialog)
         self.send_b.clicked.connect(self.send)
         self.save_file.clicked.connect(self.saveFile)
-        self.data_send.setText("Send")
-        self.exc_com.clicked.connect(self.excute)
 
+        ### press Enter to send data
+        self.data_send.setText("send")
+        self.data_send.returnPressed.connect(self.send)
+
+        self.exc_com.clicked.connect(self.excute)
+        self.restart_bu.clicked.connect(self.restart)
+        self.clear_bu.clicked.connect(self.clear)
+
+    ##########################################################################
     def excute(self):
         # os.system("start cmd /k echo hallo world!!")
         self.CleanAgent.exportExcel()
@@ -76,8 +88,8 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.terminal.append("device is disconnected")
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** Exception:")
-            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
             print(exc_value)
 
     def openDialog(self):
@@ -89,8 +101,8 @@ class test_lunch(QtWidgets.QMainWindow):
             self.terminal.append("Files have been cleaned")
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** Exception:")
-            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     @QtCore.pyqtSlot()
     def receive(self):
@@ -102,8 +114,8 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.terminal.append(text)
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** Exception:")
-            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def send(self):
         try:
@@ -124,8 +136,8 @@ class test_lunch(QtWidgets.QMainWindow):
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** Exception:")
-            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def saveFile(self):
         try:
@@ -145,8 +157,48 @@ class test_lunch(QtWidgets.QMainWindow):
                     file.close()
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** Exception:")
-            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def restart(self):
+        try:
+            self.message_6 = QMessageBox.question(
+                self,
+                "  RESTART Confirm",
+                "Do you want to Restart ?  ",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+
+            if self.message_6 == QMessageBox.Yes:
+                stream = os.popen("python lunch.py")
+                sys.exit()
+
+        except Exception as er:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def clear(self):
+        try:
+            self.message_7 = QMessageBox.question(
+                self,
+                "  clear Confirm",
+                "Do you want to clear the output! Data will be lost ?  ",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            
+            #self.message_7.setFont(self, self.font)
+            # .setStyleSheet("QPushButton{border-radius: 1px; /* Green */color: white;}")
+
+            if self.message_7 == QMessageBox.Yes:
+                self.terminal.clear()
+
+        except Exception as er:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
 app = QtWidgets.QApplication([])
