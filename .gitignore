@@ -5,5 +5,7 @@
 /dist
 /build
 *.spec
+/excels
+
 
 .vscode/settings.json
