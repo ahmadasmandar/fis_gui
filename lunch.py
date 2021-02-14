@@ -2,7 +2,7 @@ import serial.tools.list_ports
 from PyQt5 import QtWidgets, uic, QtSerialPort, QtCore, QtGui
 import os
 import sys
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QComboBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QComboBox, QInputDialog
 
 # from Cleaner import Cleaner
 import traceback
@@ -11,6 +11,11 @@ import signal
 import os
 import re
 import pandas as pd
+from datetime import datetime
+import time
+
+
+import requests
 
 
 class Cleaner:
@@ -160,6 +165,12 @@ class test_lunch(QtWidgets.QMainWindow):
         self.font = QtGui.QFont()
         self.font.setFamily("Arial")
         self.font.setPointSize(15)
+        # *------------ Time --------------------------------------------------
+        self.getTime()
+        # *-------------------------------------------------------------------
+
+        self.ParameterMode = False
+
         # self.platform = platform.system()
         # print(self.platform)
         try:
@@ -200,14 +211,22 @@ class test_lunch(QtWidgets.QMainWindow):
         self.exc_com.clicked.connect(self.excute)
         self.restart_bu.clicked.connect(self.restart)
         self.clear_bu.clicked.connect(self.clear)
+        self.set_time_bu.clicked.connect(self.setTime)
+        self.starter_bu.clicked.connect(self.showDialog)
 
         ##ComboBox
         self.comboBox.addItem(" ")
         self.comboBox.addItem("2.5S")
         self.comboBox.addItem("3S")
         self.comboBox.addItem("5S")
+        self.comboBox.addItem("P")
 
     ##########################################################################
+    def showDialog(self):
+        text, ok = QInputDialog.getText(self, "Starter number", "please enter the Starter number")
+        if ok:
+            self.terminal.append(str(text))
+
     def excute(self):
         # os.system("start cmd /k echo hallo world!!")
         self.CleanAgent.exportExcel()
@@ -301,10 +320,32 @@ class test_lunch(QtWidgets.QMainWindow):
                         self.terminal.append(self.SendMessage)
                         self.serial.write("c".encode())
 
+                    elif self.CheckComboText == "P":
+                        if not self.SendMessage or "send" in self.SendMessage:
+                            self.serial.write("p".encode())
+                            self.ParameterMode = True
+                        else:
+                            self.terminal.append(self.SendMessage)
+                            self.serial.write(self.SendMessage.encode())
+
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def setTime(self):
+        if not self.ParameterMode:
+            return
+        else:
+            self.serial.write(self.getTime().encode())
+            self.terminal.append(self.getTime())
+            # time.sleep(0.1)
+            self.serial.write("t".encode())
+
+    def exitParameter(self):
+        time.sleep(2)
+        self.ParameterMode = False
+        self.serial.write("x".encode())
 
     def saveFile(self):
         try:
@@ -366,6 +407,34 @@ class test_lunch(QtWidgets.QMainWindow):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def getTime(self):
+        self.response = requests.get("http://worldtimeapi.org/api/ip")
+
+        # Print the status code of the response.
+        self.data = self.response.json()
+
+        self.year, self.month, self.rest = str(self.data["datetime"]).split("-")
+
+        self.day, self.rest2 = self.rest.split("T")
+        self.timed, self.rest3 = self.rest2.split(".")
+        print(self.timed, self.rest3)
+        self.hour, self.minute, self.second = self.timed.split(":")
+        print(self.hour, self.minute, self.second)
+        print(type(self.hour))
+        self.time_tuple = (
+            int(self.year),  # Year
+            int(self.month),  # Month
+            int(self.day),  # Day
+            int(self.hour),  # Hour
+            int(self.minute),  # Minute
+            int(self.second),  # Second
+            0,  # Millisecond
+        )
+        self.time_string = "{0}.{1}.{2} {3}:{4}:{5}".format(
+            self.day, self.month, self.year[2:], self.hour, self.minute, self.second
+        )
+        return self.time_string
 
 
 app = QtWidgets.QApplication([])

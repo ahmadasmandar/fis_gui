@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>888</width>
-    <height>904</height>
+    <width>837</width>
+    <height>776</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,7 +41,7 @@ QPushButton{
 QTextEdit{
 background: white;
   border-radius: 5px;
-  border: 2px solid #fdd835e;
+  border: 2px solid #fdd835;
 }
 
 QComboBox{
@@ -423,6 +423,87 @@ QComboBox{
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="set_time_bu">
+          <property name="minimumSize">
+           <size>
+            <width>199</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            <kerning>true</kerning>
+           </font>
+          </property>
+          <property name="text">
+           <string>Time</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="starter_bu">
+          <property name="minimumSize">
+           <size>
+            <width>199</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            <kerning>true</kerning>
+           </font>
+          </property>
+          <property name="text">
+           <string>Starter</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="exc_com_2">
+          <property name="minimumSize">
+           <size>
+            <width>199</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            <kerning>true</kerning>
+           </font>
+          </property>
+          <property name="text">
+           <string>Excel</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label">
