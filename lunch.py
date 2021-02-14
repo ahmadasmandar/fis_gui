@@ -266,6 +266,7 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
+    @QtCore.pyqtSlot()
     def send(self):
         try:
             if not self.serial.isOpen():
@@ -275,24 +276,29 @@ class test_lunch(QtWidgets.QMainWindow):
                 return
             else:
                 self.terminal.setStyleSheet("color: black ")
-                self.message_le = self.data_send.text()
-                self.checkcombo = self.comboBox.currentText()
+                self.SendMessage = self.data_send.text()
+                self.CheckComboText = self.comboBox.currentText()
 
-                if self.checkcombo == " ":
+                if self.CheckComboText == " ":
 
-                    if "Send" in self.message_le:
+                    if "Send" in self.SendMessage:
                         self.terminal.append("\n")
                         self.serial.write("\n".encode())
+
                     else:
-                        self.terminal.append(self.message_le)
-                        self.serial.write(self.message_le.encode())
+                        self.terminal.append(self.SendMessage)
+                        self.serial.write(self.SendMessage.encode())
                 else:
-                    if self.checkcombo == "2.5S":
+                    if self.CheckComboText == "2.5S":
+                        self.terminal.append(self.SendMessage)
                         self.serial.write("a".encode())
-                    elif self.checkcombo == "3S":
+
+                    elif self.CheckComboText == "3S":
+                        self.terminal.append(self.SendMessage)
                         self.serial.write("b".encode())
 
-                    elif self.checkcombo == "5S":
+                    elif self.CheckComboText == "5S":
+                        self.terminal.append(self.SendMessage)
                         self.serial.write("c".encode())
 
         except Exception:

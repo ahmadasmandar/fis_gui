@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>712</width>
-    <height>651</height>
+    <width>888</width>
+    <height>904</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,8 @@
   <property name="styleSheet">
    <string notr="true">QMainWindow{
   border-radius: 25px;
-background: #283593;
+ background: #00183d;
+/*background: #263238;*/
 
 
 }
@@ -29,23 +30,23 @@ background: white;
 QLineEdit{
 background: white;
   border-radius: 5px;
-  border: 2px solid #f4511e;
+  border: 2px solid #fdd835;
 
 }
 QPushButton{
-  border-radius: 2px;
-  background-color: #607d8b; /* Green */
+  border-radius: 5px;
+  background-color: #8f9bad;
   color: white;
 }
 QTextEdit{
 background: white;
   border-radius: 5px;
-  border: 2px solid #f4511e;
+  border: 2px solid #fdd835e;
 }
 
 QComboBox{
-  border-radius:5px;
-  background-color: #607d8b; /* Green */
+  border-radius:3px;
+  background-color: #8f9bad; /* Green */
   color: white;
 }</string>
   </property>
@@ -219,11 +220,30 @@ QComboBox{
       </item>
       <item>
        <widget class="QTextEdit" name="terminal">
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>500</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <family>Fira Code Medium</family>
           <pointsize>10</pointsize>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QTextEdit{
+  border-radius: 5px;
+  border: 2px solid #fdd835;
+
+}</string>
         </property>
        </widget>
       </item>
@@ -382,7 +402,7 @@ QComboBox{
           <property name="styleSheet">
            <string notr="true">QPushButton{
   border-radius: 5px;
-  background-color: red; /* Green */
+  background-color: #ad3038;
   color: white;
 }</string>
           </property>
@@ -445,6 +465,22 @@ QComboBox{
        </layout>
       </item>
      </layout>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
