@@ -53,7 +53,7 @@ class Cleaner:
                     with open("./cleandata/{}".format(item), "w+") as f:
                         for line in lines:
                             if "10 Messungen" in line.strip("\n"):
-                                line = line[line.find("Ch"):]
+                                line = line[line.find("Ch") :]
                                 # print(newline)
                             # if (line.strip("\n") != "þStartfischer1 p33-6 hf8 fc6x 0.9km")
                             if "Ch" in line.strip("\n") or "V:" in line.strip("\n"):
@@ -148,17 +148,13 @@ class Cleaner:
                     if not os.path.exists("./excels"):
                         # os.makedirs("./cleandata")
                         os.makedirs("./excels")
-                    result = pd.concat(
-                        [result, dx.append(pd.Series(name="Verh..", dtype="float"))], axis=1)
+                    result = pd.concat([result, dx.append(pd.Series(name="Verh..", dtype="float"))], axis=1)
                     verhaeltnis = pd.concat([verhaeltnis, dv], axis=1)
                     new_df = result.append(verhaeltnis)
                     deltas = pd.concat([deltas, df_new], axis=1)
-                    dv.to_excel(
-                        "./excels/{}-verhaeltnis.xlsx".format(x.strip(".txt")))
-                    dx.to_excel(
-                        "./excels/{}-result.xlsx".format(x.strip(".txt")))
-                    df_new.to_excel(
-                        "./excels/{}-deltas.xlsx".format(x.strip(".txt")))
+                    dv.to_excel("./excels/{}-verhaeltnis.xlsx".format(x.strip(".txt")))
+                    dx.to_excel("./excels/{}-result.xlsx".format(x.strip(".txt")))
+                    df_new.to_excel("./excels/{}-deltas.xlsx".format(x.strip(".txt")))
 
 
 class test_lunch(QtWidgets.QMainWindow):
@@ -196,22 +192,19 @@ class test_lunch(QtWidgets.QMainWindow):
                             parity=QtSerialPort.QSerialPort.NoParity,
                             stopBits=QtSerialPort.QSerialPort.OneStop,
                         )
-                        self.connect_bu.setStyleSheet(
-                            "background-color : #fdd835")
+                        self.connect_bu.setStyleSheet("background-color : #fdd835")
                     else:
                         self.available = False
 
             if not self.available:
                 self.connect_bu.setStyleSheet("background-color : #ef5350")
-                self.terminal.append(
-                    "Flourine Tracer not detected!! please connect the device and relunch the program")
+                self.terminal.append("Flourine Tracer not detected!! please connect the device and relunch the program")
                 self.terminal.setStyleSheet("color: #ef5350 ")
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
             print(exc_value)
 
         ######################## Buttons #######################################
@@ -240,8 +233,7 @@ class test_lunch(QtWidgets.QMainWindow):
 
     ##########################################################################
     def showDialog(self):
-        text, ok = QInputDialog.getText(
-            self, "Starter number", "please enter the Starter number")
+        text, ok = QInputDialog.getText(self, "Starter number", "please enter the Starter number")
         if ok:
             self.terminal.append(str(text))
 
@@ -272,26 +264,22 @@ class test_lunch(QtWidgets.QMainWindow):
 
                 self.terminal.append("device is disconnected")
                 if self.ParameterMode:
-                    print("we are in parameter mode")
-                    self.SerialAgent.write("x".encode())
-                    self.SerialAgent.write("\r".encode())
-                    self.SerialAgent.write("\n".encode())
-                    # self.SerialAgent.write("x".encode())
-                    # self.SerialAgent.write("x".encode())
+                    self.terminal.append("End parameter mode")
+                    self.SerialAgent.write("x".encode("utf-8"))
+                    self.receive()
 
-                self.SerialAgent.close()
+                if not self.ParameterMode:
+                    time.sleep(1)
+                    self.SerialAgent.close()
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-            print(exc_value)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def openDialog(self):
         try:
-            self.file = str(QFileDialog.getExistingDirectory(
-                self, "Select Directory"))
+            self.file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             # os.system("   echo This directory {}".format(self.file))
             self.CleanAgent.cleanTxtfiles(self.file)
             self.terminal.append("\n")
@@ -299,8 +287,7 @@ class test_lunch(QtWidgets.QMainWindow):
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     @QtCore.pyqtSlot()
     def receive(self):
@@ -313,8 +300,7 @@ class test_lunch(QtWidgets.QMainWindow):
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     @QtCore.pyqtSlot()
     def send(self):
@@ -331,57 +317,63 @@ class test_lunch(QtWidgets.QMainWindow):
 
                 if self.CheckComboText == " ":
 
-                    if "Send" in self.SendMessage:
+                    if "send" in self.SendMessage:
                         self.terminal.append("\n")
-                        self.SerialAgent.write("\n".encode())
-                        self.SerialAgent.write("\r".encode())
-                        self.SerialAgent.write("\n".encode())
+                        ValueRet = self.SerialAgent.write("1".encode("utf-8"))
+                        while not self.SerialAgent.waitForBytesWritten(100):
+                            delay_while = delay_while + 1
+
+                    time.sleep(1)
+                    if ValueRet >= 1:
+                        ValueRet = self.SerialAgent.write("2".encode("utf-8"))
 
                     else:
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write(self.SendMessage.encode())
-                        self.SerialAgent.write("\r".encode())
-                        self.SerialAgent.write("\n".encode())
+                        self.SerialAgent.write(self.SendMessage.encode("utf-8"))
+                        # self.SerialAgent.write("\r".encode("utf-8"))
+                        # self.SerialAgent.write("\n".encode("utf-8"))
                 else:
                     if self.CheckComboText == "2.5S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("a".encode())
-                        self.SerialAgent.write("\r".encode())
-                        self.SerialAgent.write("\n".encode())
+                        self.SerialAgent.write("a".encode("utf-8"))
+                        # self.SerialAgent.write("\r".encode("utf-8"))
+                        # self.SerialAgent.write("\n".encode("utf-8"))
 
                     elif self.CheckComboText == "3S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("b".encode())
-                        self.SerialAgent.write("\r".encode())
-                        self.SerialAgent.write("\n".encode())
+                        self.SerialAgent.write("b".encode("utf-8"))
+                        # self.SerialAgent.write("\r".encode("utf-8"))
+                        # self.SerialAgent.write("\n".encode("utf-8"))
 
                     elif self.CheckComboText == "5S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("c".encode())
-                        self.SerialAgent.write("\r".encode())
-                        self.SerialAgent.write("\n".encode())
+                        self.SerialAgent.write("c".encode("utf-8"))
+                        # self.SerialAgent.write("\r".encode("utf-8"))
+                        # self.SerialAgent.write("\n".encode("utf-8"))
 
                     elif self.CheckComboText == "P":
                         if not self.SendMessage or "send" in self.SendMessage:
                             self.ParameterMode = True
-                            self.SerialAgent.write("p".encode())
-                            self.SerialAgent.reset_output_buffer()
-                            self.terminal.append(self.ParameterMode)
+                            self.SerialAgent.write("p".encode("utf-8"))
+                            # self.SerialAgent.clear()
                         else:
                             self.terminal.append(self.SendMessage)
-                            self.SerialAgent.write(self.SendMessage.encode())
+                            self.SerialAgent.write(self.SendMessage.encode("utf-8"))
+
+                        if self.ParameterMode:
+                            self.terminal.append("we are in parameter mode")
+                        else:
+                            self.terminal.append("False: Parameter Mode failed to be activated")
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def setTime(self):
         try:
             if not self.ParameterMode:
-                self.terminal.append(
-                    "Parameter Mode is not enabled please enable it first!!")
+                self.terminal.append("Parameter Mode is not enabled please enable it first!!")
                 return
             else:
                 self.TimeMessage = QMessageBox.question(
@@ -401,39 +393,34 @@ class test_lunch(QtWidgets.QMainWindow):
 
                     self.terminal.append("Internet Time: ")
                     self.terminal.append(self.getTime(self.TimeSourceNet))
-                    self.SerialAgent.write(self.getTime(
-                        self.TimeSourceNet).encode())
+                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode("utf-8"))
                     # time.sleep(0.1)
-                    self.SerialAgent.write("t".encode())
+                    self.SerialAgent.write("t".encode("utf-8"))
 
                 else:
                     self.terminal.append("Local Time: ")
                     self.terminal.append(self.getTime(self.TimeSourceNet))
-                    self.SerialAgent.write(self.getTime(
-                        self.TimeSourceNet).encode())
+                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode("utf-8"))
                     # time.sleep(0.1)
-                    self.SerialAgent.write("t".encode())
+                    self.SerialAgent.write("t".encode("utf-8"))
 
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
         def exitParameter(self):
             time.sleep(2)
             self.ParameterMode = False
-            self.SerialAgent.write("x".encode())
+            self.SerialAgent.write("x".encode("utf-8"))
 
     def saveFile(self):
         try:
-            self.name = QtWidgets.QFileDialog.getSaveFileName(
-                self, "Save file", "", "Text files (*.txt)")[0]
+            self.name = QtWidgets.QFileDialog.getSaveFileName(self, "Save file", "", "Text files (*.txt)")[0]
             if not self.name:
                 return
             else:
-                self.Foldercontent = self.CleanAgent.getFolderContent(
-                    self.name)
+                self.Foldercontent = self.CleanAgent.getFolderContent(self.name)
                 with open(self.name, "w") as file:
                     file = open(self.name, "w")
                     text = str(self.terminal.toPlainText())
@@ -446,8 +433,7 @@ class test_lunch(QtWidgets.QMainWindow):
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def restart(self):
         try:
@@ -466,12 +452,11 @@ class test_lunch(QtWidgets.QMainWindow):
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def clear(self):
         try:
-            self.message_7 = QMessageBox.question(
+            self.ClearMessage = QMessageBox.question(
                 self,
                 "  clear Confirm",
                 "Do you want to clear the output! Data will be lost ?  ",
@@ -479,17 +464,16 @@ class test_lunch(QtWidgets.QMainWindow):
                 QMessageBox.No,
             )
 
-            # self.message_7.setFont(self, self.font)
+            # self.ClearMessage.setFont(self, self.font)
             # .setStyleSheet("QPushButton{border-radius: 1px; /* Green */color: white;}")
 
-            if self.message_7 == QMessageBox.Yes:
+            if self.ClearMessage == QMessageBox.Yes:
                 self.terminal.clear()
 
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def getTime(self, source):
         try:
@@ -499,8 +483,7 @@ class test_lunch(QtWidgets.QMainWindow):
                 # Print the status code of the response.
                 self.data = self.response.json()
 
-                self.year, self.month, self.rest = str(
-                    self.data["datetime"]).split("-")
+                self.year, self.month, self.rest = str(self.data["datetime"]).split("-")
 
                 self.day, self.rest2 = self.rest.split("T")
                 self.timed, self.rest3 = self.rest2.split(".")
@@ -517,9 +500,7 @@ class test_lunch(QtWidgets.QMainWindow):
                     int(self.second),  # Second
                     0,  # Millisecond
                 )
-                self.time_string = "{0}.{1}.{2} {3}:{4}:{5}".format(
-                    self.day, self.month, self.year[2:], self.hour, self.minute, self.second
-                )
+                self.time_string = "{0}.{1}.{2} {3}:{4}:{5}".format(self.day, self.month, self.year[2:], self.hour, self.minute, self.second)
                 return self.time_string
             else:
                 now = datetime.now()
@@ -530,8 +511,7 @@ class test_lunch(QtWidgets.QMainWindow):
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
 app = QtWidgets.QApplication([])
