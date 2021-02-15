@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>837</width>
+    <width>872</width>
     <height>776</height>
    </rect>
   </property>
@@ -277,13 +277,13 @@ background: white;
        <widget class="QTextEdit" name="terminal">
         <property name="minimumSize">
          <size>
-          <width>500</width>
+          <width>550</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>500</width>
+          <width>550</width>
           <height>16777215</height>
          </size>
         </property>
@@ -531,7 +531,7 @@ background: white;
           <property name="styleSheet">
            <string notr="true">QPushButton{
   border-radius: 5px;
-  background-color: #8f9bad;
+  background-color: #00838f;
   color: white;
 }
 
@@ -567,7 +567,7 @@ background: white;
           <property name="styleSheet">
            <string notr="true">QPushButton{
   border-radius: 5px;
-  background-color: #8f9bad;
+   background-color: #00838f;
   color: white;
 }
 
@@ -603,7 +603,7 @@ background: white;
           <property name="styleSheet">
            <string notr="true">QPushButton{
   border-radius: 5px;
-  background-color: #8f9bad;
+  background-color: #00838f;
   color: white;
 }
 

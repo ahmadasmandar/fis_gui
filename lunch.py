@@ -222,7 +222,8 @@ class test_lunch(QtWidgets.QMainWindow):
         self.restart_bu.clicked.connect(self.restart)
         self.clear_bu.clicked.connect(self.clear)
         self.set_time_bu.clicked.connect(self.setTime)
-        self.starter_bu.clicked.connect(self.showDialog)
+        self.starter_bu.clicked.connect(self.starterDialog)
+        self.event_bu.clicked.connect(self.eventDialog)
         self.parameter_bu.clicked.connect(self.parameterControl)
         self.parameter_bu.setCheckable(True)
         self.parameter_bu.setEnabled(False)
@@ -235,10 +236,66 @@ class test_lunch(QtWidgets.QMainWindow):
         self.comboBox.addItem("5S")
 
     ##########################################################################
-    def showDialog(self):
-        text, ok = QInputDialog.getText(self, "Starter number", "please enter the Starter number")
-        if ok:
-            self.terminal.append(str(text))
+    def starterDialog(self):
+        try:
+            text, ok = QInputDialog.getText(self, "Starter number", "please enter the Starter number")
+            if ok:
+                self.StarterId = str(text)
+                self.terminal.append("Starter ID: {}".format(self.StarterId))
+                if self.ParameterMode:
+                    self.SerialAgent.write(self.StarterId.encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                    self.SerialAgent.write("a".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                else:
+                    self.terminal.append("Starter ID: {} but you are not in Parameter mode !!".format(self.StarterId))
+            self.StarterEndmessage = QMessageBox.question(self, "Parameter is set", "Exit parameter mode", QMessageBox.Ok)
+
+            if self.StarterEndmessage == QMessageBox.Ok:
+                self.SerialAgent.write("x".encode())
+                self.SerialAgent.waitForBytesWritten(100)
+                time.sleep(0.01)
+                self.ParameterMode = False
+                self.comboBox.setCurrentIndex(0)
+                self.parameter_bu.setChecked(False)
+                self.buttonControl(True)
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def eventDialog(self):
+        try:
+            text, ok = QInputDialog.getText(self, "Event", "please enter the Event name:")
+            if ok:
+                self.EventId = str(text)
+                self.terminal.append("EVENT ID: {}".format(self.EventId))
+                if self.ParameterMode:
+                    self.SerialAgent.write(self.EventId.encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                    self.SerialAgent.write("b".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                else:
+                    self.terminal.append("EVENT ID: {} but you are not in Parameter mode !!".format(self.EventId))
+            self.StarterEndmessage = QMessageBox.question(self, "Parameter is set", "Parameter Mode need to be exit to apply changes!", QMessageBox.Ok)
+
+            if self.StarterEndmessage == QMessageBox.Ok:
+                self.SerialAgent.write("x".encode())
+                self.SerialAgent.waitForBytesWritten(100)
+                time.sleep(0.01)
+                self.ParameterMode = False
+                self.comboBox.setCurrentIndex(0)
+                self.parameter_bu.setChecked(False)
+                self.buttonControl(True)
+
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def excute(self):
         # os.system("start cmd /k echo hallo world!!")
@@ -469,11 +526,7 @@ class test_lunch(QtWidgets.QMainWindow):
                         time.sleep(0.01)
                         self.ParameterMode = False
                         self.comboBox.setCurrentIndex(0)
-                        self.connect_bu.setEnabled(True)
-                        self.clean_data.setEnabled(True)
-                        self.save_file.setEnabled(True)
-                        self.restart_bu.setEnabled(True)
-                        self.clear_bu.setEnabled(True)
+                        self.buttonControl(True)
 
                 else:
                     self.terminal.append("Local Time: ")
@@ -551,6 +604,7 @@ class test_lunch(QtWidgets.QMainWindow):
 
             if self.ClearMessage == QMessageBox.Yes:
                 self.terminal.clear()
+                self.data_send.clear()
 
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
