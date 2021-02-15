@@ -255,6 +255,7 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.SerialAgent.open(QtCore.QIODevice.ReadWrite)
                 self.terminal.append("device is connected")
                 self.terminal.setStyleSheet("color: green ")
+                self.SerialAgent.flowControl()
                 if not self.SerialAgent.isOpen():
                     if not self.SerialAgent.open(QtCore.QIODevice.ReadWrite):
                         self.connect_bu.setChecked(False)
@@ -269,7 +270,6 @@ class test_lunch(QtWidgets.QMainWindow):
                     self.receive()
 
                 if not self.ParameterMode:
-                    time.sleep(1)
                     self.SerialAgent.close()
 
         except Exception:
@@ -302,7 +302,7 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-    @QtCore.pyqtSlot()
+    # @QtCore.pyqtSlot()
     def send(self):
         try:
             if not self.SerialAgent.isOpen():
@@ -314,18 +314,22 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.terminal.setStyleSheet("color: black ")
                 self.SendMessage = self.data_send.text()
                 self.CheckComboText = self.comboBox.currentText()
+                self.FirstPack = False
 
                 if self.CheckComboText == " ":
 
                     if "send" in self.SendMessage:
                         self.terminal.append("\n")
-                        ValueRet = self.SerialAgent.write("1".encode("utf-8"))
-                        while not self.SerialAgent.waitForBytesWritten(100):
-                            delay_while = delay_while + 1
+                        self.SerialAgent.writeData("1\r\n".encode())
+                        self.SerialAgent.waitForBytesWritten(500)
+                        # self.SerialAgent.waitForReadyRead(500)
+                        print(self.SerialAgent.bytesToWrite())
 
-                    time.sleep(1)
-                    if ValueRet >= 1:
-                        ValueRet = self.SerialAgent.write("2".encode("utf-8"))
+                        time.sleep(0.1)
+                        self.SerialAgent.writeData("2\r\n".encode())
+                        self.SerialAgent.waitForBytesWritten(500)
+                        # self.SerialAgent.waitForReadyRead(500)
+                        print(self.SerialAgent.bytesToWrite())
 
                     else:
                         self.terminal.append(self.SendMessage)
