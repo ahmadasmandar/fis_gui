@@ -235,6 +235,42 @@ background: white;
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="parameter_bu">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+            <kerning>true</kerning>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{
+  border-radius: 5px;
+  background-color: #8f9bad;
+  color: white;
+}
+
+</string>
+          </property>
+          <property name="text">
+           <string>ParaMode</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>

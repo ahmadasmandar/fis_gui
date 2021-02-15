@@ -192,7 +192,7 @@ class test_lunch(QtWidgets.QMainWindow):
                             parity=QtSerialPort.QSerialPort.NoParity,
                             stopBits=QtSerialPort.QSerialPort.OneStop,
                         )
-                        self.connect_bu.setStyleSheet("background-color : #fdd835")
+                        self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: yellow;}")
                     else:
                         self.available = False
 
@@ -223,13 +223,16 @@ class test_lunch(QtWidgets.QMainWindow):
         self.clear_bu.clicked.connect(self.clear)
         self.set_time_bu.clicked.connect(self.setTime)
         self.starter_bu.clicked.connect(self.showDialog)
+        self.parameter_bu.clicked.connect(self.parameterControl)
+        self.parameter_bu.setCheckable(True)
+        self.parameter_bu.setEnabled(False)
+        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
 
         # ComboBox
         self.comboBox.addItem(" ")
         self.comboBox.addItem("2.5S")
         self.comboBox.addItem("3S")
         self.comboBox.addItem("5S")
-        self.comboBox.addItem("P")
 
     ##########################################################################
     def showDialog(self):
@@ -251,23 +254,29 @@ class test_lunch(QtWidgets.QMainWindow):
                 return
 
             if checked:
-                self.connect_bu.setStyleSheet("background-color : #66bb6a")
+                self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: green;}")
                 self.SerialAgent.open(QtCore.QIODevice.ReadWrite)
                 self.terminal.append("device is connected")
                 self.terminal.setStyleSheet("color: green ")
-                self.SerialAgent.flowControl()
+                self.parameter_bu.setEnabled(True)
+                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: green;}")
+                # self.SerialAgent.flowControl()
                 if not self.SerialAgent.isOpen():
                     if not self.SerialAgent.open(QtCore.QIODevice.ReadWrite):
                         self.connect_bu.setChecked(False)
 
             else:
-                self.connect_bu.setStyleSheet("background-color : #ffa726")
+                self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
+                self.parameter_bu.setEnabled(False)
+                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
 
                 self.terminal.append("device is disconnected")
                 if self.ParameterMode:
                     self.terminal.append("End parameter mode")
-                    self.SerialAgent.write("x".encode("utf-8"))
-                    self.receive()
+                    self.SerialAgent.write("x".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                    # self.receive()
 
                 if not self.ParameterMode:
                     self.SerialAgent.close()
@@ -293,7 +302,7 @@ class test_lunch(QtWidgets.QMainWindow):
     def receive(self):
         try:
             while self.SerialAgent.canReadLine():
-                text = self.SerialAgent.readLine().data().decode()
+                text = self.SerialAgent.readLine().data().decode(errors="ignore")
                 text = text.rstrip("\r\n")
                 self.terminal.setStyleSheet("color: black ")
                 self.terminal.append(text)
@@ -318,56 +327,95 @@ class test_lunch(QtWidgets.QMainWindow):
 
                 if self.CheckComboText == " ":
 
-                    if "send" in self.SendMessage:
+                    if "send" in self.SendMessage or not self.SendMessage:
                         self.terminal.append("\n")
-                        self.SerialAgent.writeData("1\r\n".encode())
-                        self.SerialAgent.waitForBytesWritten(500)
-                        # self.SerialAgent.waitForReadyRead(500)
-                        print(self.SerialAgent.bytesToWrite())
+                        self.SerialAgent.writeData("1\r".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
 
-                        time.sleep(0.1)
-                        self.SerialAgent.writeData("2\r\n".encode())
-                        self.SerialAgent.waitForBytesWritten(500)
-                        # self.SerialAgent.waitForReadyRead(500)
-                        print(self.SerialAgent.bytesToWrite())
+                        # time.sleep(0.1)
+                        # self.SerialAgent.writeData("2\r".encode())
+                        # self.SerialAgent.waitForBytesWritten(100)
 
                     else:
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write(self.SendMessage.encode("utf-8"))
-                        # self.SerialAgent.write("\r".encode("utf-8"))
-                        # self.SerialAgent.write("\n".encode("utf-8"))
+                        self.SerialAgent.write(self.SendMessage.encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
                 else:
                     if self.CheckComboText == "2.5S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("a".encode("utf-8"))
-                        # self.SerialAgent.write("\r".encode("utf-8"))
-                        # self.SerialAgent.write("\n".encode("utf-8"))
+                        self.SerialAgent.write("a".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
 
                     elif self.CheckComboText == "3S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("b".encode("utf-8"))
-                        # self.SerialAgent.write("\r".encode("utf-8"))
-                        # self.SerialAgent.write("\n".encode("utf-8"))
+                        self.SerialAgent.write("b".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
 
                     elif self.CheckComboText == "5S":
                         self.terminal.append(self.SendMessage)
-                        self.SerialAgent.write("c".encode("utf-8"))
-                        # self.SerialAgent.write("\r".encode("utf-8"))
-                        # self.SerialAgent.write("\n".encode("utf-8"))
+                        self.SerialAgent.write("c".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
 
-                    elif self.CheckComboText == "P":
-                        if not self.SendMessage or "send" in self.SendMessage:
-                            self.ParameterMode = True
-                            self.SerialAgent.write("p".encode("utf-8"))
-                            # self.SerialAgent.clear()
-                        else:
-                            self.terminal.append(self.SendMessage)
-                            self.SerialAgent.write(self.SendMessage.encode("utf-8"))
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-                        if self.ParameterMode:
-                            self.terminal.append("we are in parameter mode")
-                        else:
-                            self.terminal.append("False: Parameter Mode failed to be activated")
+    def parameterControl(self, checked):
+
+        try:
+            if self.SerialAgent.isOpen():
+                if self.parameter_bu.isChecked():
+                    print("if")
+                    print(self.parameter_bu.isChecked())
+                    self.SendMessage = self.data_send.text()
+                    if not self.SendMessage or "send" in self.SendMessage:
+                        self.ParameterMode = True
+                        self.SerialAgent.write("p".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
+                    else:
+                        self.terminal.append(self.SendMessage)
+                        self.SerialAgent.write(self.SendMessage.encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
+
+                    if self.ParameterMode:
+                        self.terminal.append("we are in parameter mode")
+                    else:
+                        self.terminal.append("False: Parameter Mode failed to be activated")
+
+                    self.buttonControl(False)
+                else:
+                    print("else")
+                    print(self.parameter_bu.isChecked())
+                    self.terminal.append("End parameter mode")
+                    self.SerialAgent.write("x".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+                    self.ParameterMode = False
+                    self.buttonControl(True)
+                    self.parameter_bu.setChecked(False)
+            else:
+                self.terminal.append("device is not connected:!!")
+                self.parameter_bu.setChecked(True)
+
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+    def buttonControl(self, enable):
+        try:
+            self.connect_bu.setEnabled(enable)
+            self.clean_data.setEnabled(enable)
+            self.save_file.setEnabled(enable)
+            self.restart_bu.setEnabled(enable)
+            self.clear_bu.setEnabled(enable)
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -397,16 +445,46 @@ class test_lunch(QtWidgets.QMainWindow):
 
                     self.terminal.append("Internet Time: ")
                     self.terminal.append(self.getTime(self.TimeSourceNet))
-                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode("utf-8"))
+                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
                     # time.sleep(0.1)
-                    self.SerialAgent.write("t".encode("utf-8"))
+                    self.SerialAgent.write("t".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
+
+                    self.MoreParamMessage1 = QMessageBox.question(
+                        self,
+                        "More Parameter",
+                        "Do you want to add more Parameters?  ",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+
+                    if self.MoreParamMessage1 == QMessageBox.Yes:
+                        return
+                    else:
+                        self.SerialAgent.write("x".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
+                        self.ParameterMode = False
+                        self.comboBox.setCurrentIndex(0)
+                        self.connect_bu.setEnabled(True)
+                        self.clean_data.setEnabled(True)
+                        self.save_file.setEnabled(True)
+                        self.restart_bu.setEnabled(True)
+                        self.clear_bu.setEnabled(True)
 
                 else:
                     self.terminal.append("Local Time: ")
                     self.terminal.append(self.getTime(self.TimeSourceNet))
-                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode("utf-8"))
+                    self.SerialAgent.write(self.getTime(self.TimeSourceNet).encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
                     # time.sleep(0.1)
-                    self.SerialAgent.write("t".encode("utf-8"))
+                    self.SerialAgent.write("t".encode())
+                    self.SerialAgent.waitForBytesWritten(100)
+                    time.sleep(0.01)
 
         except Exception as er:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -416,7 +494,7 @@ class test_lunch(QtWidgets.QMainWindow):
         def exitParameter(self):
             time.sleep(2)
             self.ParameterMode = False
-            self.SerialAgent.write("x".encode("utf-8"))
+            self.SerialAgent.write("x".encode())
 
     def saveFile(self):
         try:
