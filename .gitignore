@@ -6,6 +6,8 @@
 /build
 *.spec
 /excels
+/build
+/dist
 
 
 .vscode/settings.json
