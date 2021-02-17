@@ -9,9 +9,6 @@ __email__ = "a.asmandar@kompass-sensor.com"
 __status__ = "Production"
 #####################################################
 
-
-
-
 import os
 import sys
 import subprocess
@@ -83,6 +80,16 @@ def install(package):
 
 if len(missing) >0 and FirstRunFlag :
     #print("hallo")
+    ##!first check if python and the oteher dips are installed
+    # CheckPython=subprocess.Popen("python --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True, stdin=subprocess.PIPE)
+    # print(CheckPython.communicate()[0])
+    # print(CheckPython.communicate()[1])
+    # if CheckPython.communicate()[1]:
+    #     CheckInstall=subprocess.Popen("./dips/python-3.8.0-amd64.exe",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True, stdin=subprocess.PIPE)
+    #     subprocess.Popen.wait()
+    # if not CheckInstall.communicate()[1]:
+    #     subprocess.Popen("./dips/runtime-3.1.11-win-x64.exe",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True, stdin=subprocess.PIPE)
+    #     subprocess.Popen.wait()
     InfoLogger.info("first run ")
     for x in missing:
         CheckExecFlag = install(x)

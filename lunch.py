@@ -601,7 +601,7 @@ class test_lunch(QtWidgets.QMainWindow):
             )
 
             if self.message_6 == QMessageBox.Yes:
-                stream = os.popen("python lunch.py")
+                stream = os.popen("python lunch.cpython-38.pyc")
                 sys.exit()
 
         except Exception as er:
