@@ -36,9 +36,9 @@ class Cleaner:
         if not dir:
             return
         else:
-            if not os.path.exists("./cleandata"):
-                os.makedirs("./cleandata")
-                os.makedirs("./excels")
+            if not os.path.exists("{}/cleandata".format(dir)):
+                os.makedirs("{}/cleandata".format(dir))
+                os.makedirs("{}/excels".format(dir))
             self.FolderContent = os.listdir(dir)
 
             for item in self.FolderContent:
@@ -46,129 +46,130 @@ class Cleaner:
                 # print(item)
                 if item.find(".txt") > 0 and item != ".git":
                     # print(item)
-                    with open("./{}".format(item), "r") as f:
+                    with open("{0}/{1}".format(dir,item), "r") as f:
                         lines = f.readlines()
                         f.close()
                     #     # if (os.path.exists("./cleandata/{}".format(item))):
-                    with open("./cleandata/{}".format(item), "w+") as f:
+                    with open("{0}/cleandata/{1}".format(dir,item), "w+") as f:
                         for line in lines:
                             if "10 Messungen" in line.strip("\n"):
                                 line = line[line.find("Ch") :]
                                 # print(newline)
                             # if (line.strip("\n") != "þStartfischer1 p33-6 hf8 fc6x 0.9km")
-                            if "Ch" in line.strip("\n") or "V:" in line.strip("\n"):
+                            if "Ch" in line.strip("\n") or "VR" in line.strip("\n"):
                                 f.write(line.replace(";", ""))
 
-    def exportExcel(self):
-        # try:
-        if not os.path.exists("./cleandata"):
-            import ctypes  # An included library with Python install.
+    def exportExcel(self,dir):
+        try:
+            path_parent = os.path.dirname(dir)
+            if not os.path.exists("{}/cleandata".format(path_parent)):
+                import ctypes  # An included library with Python install.
 
-            ctypes.windll.user32.MessageBoxW(0, "No Data to generate ", "NO Data!")
-            return False
+                ctypes.windll.user32.MessageBoxW(0, "No Data to generate ", "NO Data!")
+                return False
 
-        else:
-            content = os.listdir("./cleandata")
+            else:
+                content = os.listdir("{}/cleandata".format(path_parent))
 
-            a = {}
-            lst = {}
-            result = pd.DataFrame()
-            verhaeltnis = pd.DataFrame()
-            deltas = pd.DataFrame()
-            new_df = pd.DataFrame()
-            for x in content:
-                if x.find(".txt") > 0 and x != ".git":
-                    # print(x)
-                    df = pd.read_csv(
-                        "./cleandata/{}".format(x),
-                        names=["channal", "min", "max", "x", "y"],
-                        sep="\s+",
-                        encoding="ISO-8859-1",
-                    )
-                    dx = df.drop(["x", "y"], axis=1)
-                    # .map(lambda x: x.lstrip("+-;").rstrip("aAbBcC;"))
-                    dx["min"] = dx["min"]
-                    # .map(lambda x: x.lstrip(";").rstrip(";"))
-                    dx["channal"] = dx["channal"]
-                    if 100 in dx.index:
-                        dx = dx.drop(100)
-                    dx["min"] = pd.to_numeric(dx["min"])
-                    dx["max"] = pd.to_numeric(dx["max"])
-                    dx["deltas"] = dx["max"] - dx["min"]
-                    # dx["name"]=x.strip('.txt')
-                    ########### Extract channals ######
+                a = {}
+                lst = {}
+                result = pd.DataFrame()
+                verhaeltnis = pd.DataFrame()
+                deltas = pd.DataFrame()
+                new_df = pd.DataFrame()
+                for x in content:
+                    if x.find(".txt") > 0 and x != ".git":
+                        # print(x)
+                        df = pd.read_csv(
+                            "{0}/cleandata/{1}".format(path_parent,x),
+                            names=["channal", "min", "max", "x", "y"],
+                            sep="\s+",
+                            encoding="ISO-8859-1",
+                        )
+                        dx = df.drop(["x", "y"], axis=1)
+                        # .map(lambda x: x.lstrip("+-;").rstrip("aAbBcC;"))
+                        dx["min"] = dx["min"]
+                        # .map(lambda x: x.lstrip(";").rstrip(";"))
+                        dx["channal"] = dx["channal"]
+                        if 100 in dx.index:
+                            dx = dx.drop(100)
+                        dx["min"] = pd.to_numeric(dx["min"])
+                        dx["max"] = pd.to_numeric(dx["max"])
+                        dx["deltas"] = dx["max"] - dx["min"]
+                        # dx["name"]=x.strip('.txt')
+                        ########### Extract channals ######
 
-                    ch0 = dx[dx.channal == "Ch0:"]
-                    ch1 = dx[dx.channal == "Ch1:"]
-                    ch2 = dx[dx.channal == "Ch2:"]
-                    ch3 = dx[dx.channal == "Ch3:"]
-                    ch4 = dx[dx.channal == "Ch4:"]
-                    ch5 = dx[dx.channal == "Ch5:"]
-                    ch6 = dx[dx.channal == "Ch6:"]
-                    ch7 = dx[dx.channal == "Ch7:"]
-                    ch8 = dx[dx.channal == "Ch8:"]
-                    # print(ch0.head())
-                    ############ build the deltas #############
-                    delta0 = ch0["max"] - ch0["min"]
-                    lst["delta0"] = delta0
-                    delta1 = ch1["max"] - ch1["min"]
-                    lst["delta1"] = delta1
-                    delta2 = ch2["max"] - ch2["min"]
-                    lst["delta2"] = delta2
-                    delta3 = ch3["max"] - ch3["min"]
-                    lst["delta3"] = delta3
-                    delta4 = ch4["max"] - ch4["min"]
-                    lst["delta4"] = delta4
-                    delta5 = ch5["max"] - ch5["min"]
-                    lst["delta5"] = delta5
-                    delta6 = ch6["max"] - ch6["min"]
-                    lst["delta6"] = delta6
-                    delta7 = ch7["max"] - ch7["min"]
-                    lst["delta7"] = delta7
-                    delta8 = ch8["max"] - ch8["min"]
-                    lst["delta8"] = delta8
-                    # print(delta0.head())
-                    # format reset index
+                        ch0 = dx[dx.channal == "Ch0:"]
+                        ch1 = dx[dx.channal == "Ch1:"]
+                        ch2 = dx[dx.channal == "Ch2:"]
+                        ch3 = dx[dx.channal == "Ch3:"]
+                        ch4 = dx[dx.channal == "Ch4:"]
+                        ch5 = dx[dx.channal == "Ch5:"]
+                        ch6 = dx[dx.channal == "Ch6:"]
+                        ch7 = dx[dx.channal == "Ch7:"]
+                        ch8 = dx[dx.channal == "Ch8:"]
+                        # print(ch0.head())
+                        ############ build the deltas #############
+                        delta0 = ch0["max"] - ch0["min"]
+                        lst["delta0"] = delta0
+                        delta1 = ch1["max"] - ch1["min"]
+                        lst["delta1"] = delta1
+                        delta2 = ch2["max"] - ch2["min"]
+                        lst["delta2"] = delta2
+                        delta3 = ch3["max"] - ch3["min"]
+                        lst["delta3"] = delta3
+                        delta4 = ch4["max"] - ch4["min"]
+                        lst["delta4"] = delta4
+                        delta5 = ch5["max"] - ch5["min"]
+                        lst["delta5"] = delta5
+                        delta6 = ch6["max"] - ch6["min"]
+                        lst["delta6"] = delta6
+                        delta7 = ch7["max"] - ch7["min"]
+                        lst["delta7"] = delta7
+                        delta8 = ch8["max"] - ch8["min"]
+                        lst["delta8"] = delta8
+                        # print(delta0.head())
+                        # format reset index
 
-                    df_new = pd.DataFrame.from_dict(lst)
-                    df_new = df_new.apply(lambda x: pd.Series(x.dropna().values))
-                    # print(df_new.head(3))
-                    dv = dx[dx.channal == "V:"]
+                        df_new = pd.DataFrame.from_dict(lst)
+                        df_new = df_new.apply(lambda x: pd.Series(x.dropna().values))
+                        # print(df_new.head(3))
+                        dv = dx[dx.channal == "V:"]
 
-                    # connect the name of Measurement
-                    dv.index.name = x.strip(".txt")
-                    dx.index.name = x.strip(".txt")
-                    df_new.index.name = x.strip(".txt")
+                        # connect the name of Measurement
+                        dv.index.name = x.strip(".txt")
+                        dx.index.name = x.strip(".txt")
+                        df_new.index.name = x.strip(".txt")
 
-                    dx = dx.reset_index()
-                    dv = dv.reset_index()
-                    df_new = df_new.reset_index()
+                        dx = dx.reset_index()
+                        dv = dv.reset_index()
+                        df_new = df_new.reset_index()
 
-                    if not (dx.empty):
-                        a[x.strip(".txt")] = dx
-                    dv = dv.replace("V:", "V:{}".format(x.strip(".txt")))
-                    rows = df_new.shape[0]
-                    # print(rows)
-                    for row in range(rows):
-                        df_new["name"] = x.strip(".txt")
-                    # drop empty Dataframes
-                    if not (dx.empty):
-                        if not os.path.exists("./excels"):
-                            # os.makedirs("./cleandata")
-                            os.makedirs("./excels")
-                        result = pd.concat([result, dx.append(pd.Series(name="Verh..", dtype="float"))], axis=1)
-                        verhaeltnis = pd.concat([verhaeltnis, dv], axis=1)
-                        new_df = result.append(verhaeltnis)
-                        deltas = pd.concat([deltas, df_new], axis=1)
-                        dv.to_excel("./excels/{}-verhaeltnis.xlsx".format(x.strip(".txt")))
-                        dx.to_excel("./excels/{}-result.xlsx".format(x.strip(".txt")))
-                        df_new.to_excel("./excels/{}-deltas.xlsx".format(x.strip(".txt")))
-            return True
+                        if not (dx.empty):
+                            a[x.strip(".txt")] = dx
+                        dv = dv.replace("V:", "V:{}".format(x.strip(".txt")))
+                        rows = df_new.shape[0]
+                        # print(rows)
+                        for row in range(rows):
+                            df_new["name"] = x.strip(".txt")
+                        # drop empty Dataframes
+                        if not (dx.empty):
+                            if not os.path.exists("{}/excels".format(path_parent)):
+                                # os.makedirs("{}/cleandata".format(dir))
+                                os.makedirs("{}/excels".format(path_parent))
+                            result = pd.concat([result, dx.append(pd.Series(name="Verh..", dtype="float"))], axis=1)
+                            verhaeltnis = pd.concat([verhaeltnis, dv], axis=1)
+                            new_df = result.append(verhaeltnis)
+                            deltas = pd.concat([deltas, df_new], axis=1)
+                            dv.to_excel("{0}/excels/{1}-verhaeltnis.xlsx".format(path_parent,x.strip(".txt")))
+                            dx.to_excel("{0}/excels/{1}-result.xlsx".format(path_parent,x.strip(".txt")))
+                            df_new.to_excel("{0}/excels/{1}-deltas.xlsx".format(path_parent,x.strip(".txt")))
+                return True
 
-    # except Exception:
-    #     exc_type, exc_value, exc_traceback = sys.exc_info()
-    #     print("*** ErrorDetails:")
-    #     traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
 class test_lunch(QtWidgets.QMainWindow):
@@ -225,8 +226,8 @@ class test_lunch(QtWidgets.QMainWindow):
 
         ######################## Buttons #######################################
 
-        self.connect_bu.clicked.connect(self.onClicked)
-        self.clean_data.clicked.connect(self.openDialog)
+        self.connect_bu.clicked.connect(self.connectFunction)
+        self.clean_data.clicked.connect(self.cleanFiles)
         self.send_b.clicked.connect(self.send)
         self.save_file.clicked.connect(self.saveFile)
 
@@ -234,7 +235,7 @@ class test_lunch(QtWidgets.QMainWindow):
         self.data_send.setText("send")
         self.data_send.returnPressed.connect(self.send)
 
-        self.exc_com.clicked.connect(self.excute)
+        self.exc_com.clicked.connect(self.exportToexcel)
         self.restart_bu.clicked.connect(self.restart)
         self.clear_bu.clicked.connect(self.clear)
         self.set_time_bu.clicked.connect(self.setTime)
@@ -313,17 +314,7 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-    def excute(self):
-        # os.system("start cmd /k echo hallo world!!")
-        self.DataExcelFlag = self.CleanAgent.exportExcel()
-        if self.DataExcelFlag:
-            self.terminal.append("\n")
-            self.terminal.append("Files Exported ")
-        else:
-            self.terminal.append("\n")
-            self.terminal.append("there was error generating excel files!!")
-
-    def onClicked(self, checked):
+    def connectFunction(self, checked):
         try:
             if self.available == True:
                 self.connect_bu.setText("Disconnect" if checked else "Connect")
@@ -355,20 +346,61 @@ class test_lunch(QtWidgets.QMainWindow):
                     self.SerialAgent.waitForBytesWritten(100)
                     time.sleep(0.01)
                     # self.receive()
+                self.parameter_bu.setEnabled(False)
 
                 if not self.ParameterMode:
                     self.SerialAgent.close()
+                    self.parameter_bu.setEnabled(True)
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-    def openDialog(self):
+#####?######################################## Work with Files #####################################
+
+    def cleanFiles(self):
         try:
-            self.file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-            # os.system("   echo This directory {}".format(self.file))
-            self.CleanAgent.cleanTxtfiles(self.file)
+            self.FilesDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+            print(self.FilesDir)
+            self.CleanAgent.cleanTxtfiles(self.FilesDir)
+
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+
+    def exportToexcel(self):
+        try:
+            self.ExcelsDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+            # os.system("start cmd /k echo hallo world!!")
+            self.DataExcelFlag = self.CleanAgent.exportExcel(self.ExcelsDir)
+            if self.DataExcelFlag:
+                self.terminal.append("\n")
+                self.terminal.append("Files Exported ")
+            else:
+                self.terminal.append("\n")
+                self.terminal.append("there was error generating excel files!!")
+
+        except Exception:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+#####?#################################################################################################
+####*#################################################################################################
+
+    @QtCore.pyqtSlot()
+    def receive(self):
+        try:
+            while self.SerialAgent.canReadLine():
+                text = self.SerialAgent.readLine().data().decode(errors="ignore")
+                self.terminal.setStyleSheet("color: black ")
+                #print(text)
+                if not  "StringCommand" in text:
+                    text = text.rstrip("\r\n")
+                    self.terminal.append(text)
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -376,19 +408,6 @@ class test_lunch(QtWidgets.QMainWindow):
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     @QtCore.pyqtSlot()
-    def receive(self):
-        try:
-            while self.SerialAgent.canReadLine():
-                text = self.SerialAgent.readLine().data().decode(errors="ignore")
-                text = text.rstrip("\r\n")
-                self.terminal.setStyleSheet("color: black ")
-                self.terminal.append(text)
-        except Exception:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** ErrorDetails:")
-            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-
-    # @QtCore.pyqtSlot()
     def send(self):
         try:
             if not self.SerialAgent.isOpen():
@@ -442,6 +461,30 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
+    def clear(self):
+        try:
+            self.ClearMessage = QMessageBox.question(
+                self,
+                "  clear Confirm",
+                "Do you want to clear the output! Data will be lost ?  ",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+
+            # self.ClearMessage.setFont(self, self.font)
+            # .setStyleSheet("QPushButton{border-radius: 1px; /* Green */color: white;}")
+
+            if self.ClearMessage == QMessageBox.Yes:
+                self.terminal.clear()
+                self.data_send.clear()
+
+        except Exception as er:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print("*** ErrorDetails:")
+            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+######*#################################################################################################
+
     def parameterControl(self, checked):
 
         try:
@@ -470,16 +513,18 @@ class test_lunch(QtWidgets.QMainWindow):
                 else:
                     #print("else")
                     #print(self.parameter_bu.isChecked())
-                    self.terminal.append("End parameter mode")
-                    self.SerialAgent.write("x".encode())
-                    self.SerialAgent.waitForBytesWritten(100)
-                    time.sleep(0.01)
-                    self.ParameterMode = False
-                    self.buttonControl(True)
-                    self.parameter_bu.setChecked(False)
+                    if self.ParameterMode:
+                        self.terminal.append("End parameter mode")
+                        self.SerialAgent.write("x".encode())
+                        self.SerialAgent.waitForBytesWritten(100)
+                        time.sleep(0.01)
+                        self.ParameterMode = False
+                        self.buttonControl(True)
+                        self.parameter_bu.setChecked(False)
             else:
                 self.terminal.append("device is not connected:!!")
-                self.parameter_bu.setChecked(True)
+                #self.parameter_bu.setChecked(True)
+                self.parameter_bu.setChecked(False)
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -564,10 +609,10 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-        def exitParameter(self):
-            time.sleep(2)
-            self.ParameterMode = False
-            self.SerialAgent.write("x".encode())
+    def exitParameter(self):
+        time.sleep(2)
+        self.ParameterMode = False
+        self.SerialAgent.write("x".encode())
 
     def saveFile(self):
         try:
@@ -609,27 +654,7 @@ class test_lunch(QtWidgets.QMainWindow):
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
-    def clear(self):
-        try:
-            self.ClearMessage = QMessageBox.question(
-                self,
-                "  clear Confirm",
-                "Do you want to clear the output! Data will be lost ?  ",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
 
-            # self.ClearMessage.setFont(self, self.font)
-            # .setStyleSheet("QPushButton{border-radius: 1px; /* Green */color: white;}")
-
-            if self.ClearMessage == QMessageBox.Yes:
-                self.terminal.clear()
-                self.data_send.clear()
-
-        except Exception as er:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            print("*** ErrorDetails:")
-            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
     def getTime(self, source):
         try:
