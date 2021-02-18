@@ -14,6 +14,11 @@ import pandas as pd
 from datetime import datetime
 import time
 import requests
+import logging
+
+#############################
+## Create the Loggers
+
 
 #############################
 
@@ -21,7 +26,6 @@ import requests
 class Cleaner:
     def __init__(self):
         super(Cleaner, self).__init__()
-
         self.names = None
 
     def getFolderContent(self, dir=None):
@@ -46,11 +50,11 @@ class Cleaner:
                 # print(item)
                 if item.find(".txt") > 0 and item != ".git":
                     # print(item)
-                    with open("{0}/{1}".format(dir,item), "r") as f:
+                    with open("{0}/{1}".format(dir, item), "r") as f:
                         lines = f.readlines()
                         f.close()
                     #     # if (os.path.exists("./cleandata/{}".format(item))):
-                    with open("{0}/cleandata/{1}".format(dir,item), "w+") as f:
+                    with open("{0}/cleandata/{1}".format(dir, item), "w+") as f:
                         for line in lines:
                             if "10 Messungen" in line.strip("\n"):
                                 line = line[line.find("Ch") :]
@@ -59,7 +63,7 @@ class Cleaner:
                             if "Ch" in line.strip("\n") or "VR" in line.strip("\n"):
                                 f.write(line.replace(";", ""))
 
-    def exportExcel(self,dir):
+    def exportExcel(self, dir):
         try:
             path_parent = os.path.dirname(dir)
             if not os.path.exists("{}/cleandata".format(path_parent)):
@@ -81,7 +85,7 @@ class Cleaner:
                     if x.find(".txt") > 0 and x != ".git":
                         # print(x)
                         df = pd.read_csv(
-                            "{0}/cleandata/{1}".format(path_parent,x),
+                            "{0}/cleandata/{1}".format(path_parent, x),
                             names=["channal", "min", "max", "x", "y"],
                             sep="\s+",
                             encoding="ISO-8859-1",
@@ -161,9 +165,9 @@ class Cleaner:
                             verhaeltnis = pd.concat([verhaeltnis, dv], axis=1)
                             new_df = result.append(verhaeltnis)
                             deltas = pd.concat([deltas, df_new], axis=1)
-                            dv.to_excel("{0}/excels/{1}-verhaeltnis.xlsx".format(path_parent,x.strip(".txt")))
-                            dx.to_excel("{0}/excels/{1}-result.xlsx".format(path_parent,x.strip(".txt")))
-                            df_new.to_excel("{0}/excels/{1}-deltas.xlsx".format(path_parent,x.strip(".txt")))
+                            dv.to_excel("{0}/excels/{1}-verhaeltnis.xlsx".format(path_parent, x.strip(".txt")))
+                            dx.to_excel("{0}/excels/{1}-result.xlsx".format(path_parent, x.strip(".txt")))
+                            df_new.to_excel("{0}/excels/{1}-deltas.xlsx".format(path_parent, x.strip(".txt")))
                 return True
 
         except Exception:
@@ -184,12 +188,20 @@ class test_lunch(QtWidgets.QMainWindow):
         self.setWindowIcon(QtGui.QIcon("ski1.ico"))
         self.setIconSize(QtCore.QSize(128, 128))
 
+        if not os.path.exists("./logs".format(dir)):
+            os.makedirs("./logs".format(dir))
+
+        # self.InfoLogger = self.setup_logger("InfoLogger", "./logs/p_info.log", level=logging.INFO)
+        self.DebugLogger = self.setup_logger("DebugLoger", "./logs/p_debug.log", level=logging.DEBUG)
+
         # *------------ Time --------------------------------------------------
         self.getTime(False)
         self.TimeSourceNet = False
         # *-------------------------------------------------------------------
 
         self.ParameterMode = False
+
+        self.formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
 
         # self.platform = platform.system()
         # print(self.platform)
@@ -209,7 +221,7 @@ class test_lunch(QtWidgets.QMainWindow):
                             parity=QtSerialPort.QSerialPort.NoParity,
                             stopBits=QtSerialPort.QSerialPort.OneStop,
                         )
-                        self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: yellow;}")
+                        self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #FDD835;}")
                     else:
                         self.available = False
 
@@ -244,13 +256,26 @@ class test_lunch(QtWidgets.QMainWindow):
         self.parameter_bu.clicked.connect(self.parameterControl)
         self.parameter_bu.setCheckable(True)
         self.parameter_bu.setEnabled(False)
-        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
+        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #c62828;}")
 
         # ComboBox
         self.comboBox.addItem(" ")
         self.comboBox.addItem("2.5S")
         self.comboBox.addItem("3S")
         self.comboBox.addItem("5S")
+    #########################################################################
+
+    def setup_logger(self,name, log_file, level=logging.INFO):
+        """To setup as many loggers as you want"""
+        self.formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+        handler = logging.FileHandler(log_file)
+        handler.setFormatter(self.formatter)
+
+        logger_ret = logging.getLogger(name)
+        logger_ret.setLevel(level)
+        logger_ret.addHandler(handler)
+
+        return logger_ret
 
     ##########################################################################
     def starterDialog(self):
@@ -268,7 +293,8 @@ class test_lunch(QtWidgets.QMainWindow):
                     time.sleep(0.01)
                 else:
                     self.terminal.append("Starter ID: {} but you are not in Parameter mode !!".format(self.StarterId))
-            self.StarterEndmessage = QMessageBox.question(self, "Parameter is set", "Exit parameter mode", QMessageBox.Ok)
+            self.StarterEndmessage = QMessageBox.question(self, "Parameter is set", "Parameter Mode need to be exit to apply changes!", QMessageBox.Ok)
+            self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
 
             if self.StarterEndmessage == QMessageBox.Ok:
                 self.SerialAgent.write("x".encode())
@@ -278,10 +304,13 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.comboBox.setCurrentIndex(0)
                 self.parameter_bu.setChecked(False)
                 self.buttonControl(True)
+            # if self.StarterId:
+                # self.InfoLogger("StarterID_LOgger:{}".format(self.StarterId))
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def eventDialog(self):
         try:
@@ -299,6 +328,7 @@ class test_lunch(QtWidgets.QMainWindow):
                 else:
                     self.terminal.append("EVENT ID: {} but you are not in Parameter mode !!".format(self.EventId))
             self.StarterEndmessage = QMessageBox.question(self, "Parameter is set", "Parameter Mode need to be exit to apply changes!", QMessageBox.Ok)
+            self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
 
             if self.StarterEndmessage == QMessageBox.Ok:
                 self.SerialAgent.write("x".encode())
@@ -308,11 +338,14 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.comboBox.setCurrentIndex(0)
                 self.parameter_bu.setChecked(False)
                 self.buttonControl(True)
+            # if self.EventId:
+                # self.InfoLogger("EventId_LOgger:{}".format(self.EventId))
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def connectFunction(self, checked):
         try:
@@ -323,23 +356,34 @@ class test_lunch(QtWidgets.QMainWindow):
                 return
 
             if checked:
-                self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: green;}")
+                self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
                 self.SerialAgent.open(QtCore.QIODevice.ReadWrite)
                 self.terminal.append("device is connected")
-                self.terminal.setStyleSheet("color: green ")
+                self.terminal.setStyleSheet("color: #64DD17 ")
                 self.parameter_bu.setEnabled(True)
-                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: green;}")
+                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
+                # self.InfoLogger("Connected_LOgger: device is connected")
                 # self.SerialAgent.flowControl()
                 if not self.SerialAgent.isOpen():
                     if not self.SerialAgent.open(QtCore.QIODevice.ReadWrite):
+                        # self.InfoLogger("Connected_LOgger: serial agent was not open")
                         self.connect_bu.setChecked(False)
 
             else:
-                self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
+                ports = list(serial.tools.list_ports.comports())
+                for p in ports:
+                    if "0403" in p.hwid:
+                        if p.device:
+                            self.available = True
+                if self.available:
+                    self.connect_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #FDD835;}")
+
                 self.parameter_bu.setEnabled(False)
-                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #8f9bad; color: red;}")
+
+                self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #c62828;}")
 
                 self.terminal.append("device is disconnected")
+                # self.InfoLogger("Connected_LOgger: device is disconnected")
                 if self.ParameterMode:
                     self.terminal.append("End parameter mode")
                     self.SerialAgent.write("x".encode())
@@ -353,23 +397,26 @@ class test_lunch(QtWidgets.QMainWindow):
                     self.parameter_bu.setEnabled(True)
 
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
-#####?######################################## Work with Files #####################################
+    #####?######################################## Work with Files #####################################
 
     def cleanFiles(self):
         try:
             self.FilesDir = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
             print(self.FilesDir)
             self.CleanAgent.cleanTxtfiles(self.FilesDir)
+            # self.InfoLogger("clean_LOgger: {}".format(self.FilesDir))
 
         except Exception:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-
+            # self.DebugLogger(str(exc_value))
 
     def exportToexcel(self):
         try:
@@ -383,13 +430,17 @@ class test_lunch(QtWidgets.QMainWindow):
                 self.terminal.append("\n")
                 self.terminal.append("there was error generating excel files!!")
 
+            # self.InfoLogger("exportToexcel_LOgger: {}".format(self.ExcelsDir))
+
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
-#####?#################################################################################################
-####*#################################################################################################
+    #####?#################################################################################################
+    ####*#################################################################################################
 
     @QtCore.pyqtSlot()
     def receive(self):
@@ -397,15 +448,17 @@ class test_lunch(QtWidgets.QMainWindow):
             while self.SerialAgent.canReadLine():
                 text = self.SerialAgent.readLine().data().decode(errors="ignore")
                 self.terminal.setStyleSheet("color: black ")
-                #print(text)
-                if not  "StringCommand" in text:
+                # print(text)
+                if not "StringCommand" in text:
                     text = text.rstrip("\r\n")
                     self.terminal.append(text)
 
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     @QtCore.pyqtSlot()
     def send(self):
@@ -457,9 +510,11 @@ class test_lunch(QtWidgets.QMainWindow):
                         time.sleep(0.01)
 
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def clear(self):
         try:
@@ -482,19 +537,21 @@ class test_lunch(QtWidgets.QMainWindow):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
-######*#################################################################################################
+    ######*#################################################################################################
 
     def parameterControl(self, checked):
 
         try:
             if self.SerialAgent.isOpen():
                 if self.parameter_bu.isChecked():
-                    #print("if")
-                    #print(self.parameter_bu.isChecked())
+                    # print("if")
+                    # print(self.parameter_bu.isChecked())
                     self.SendMessage = self.data_send.text()
                     if not self.SendMessage or "send" in self.SendMessage:
                         self.ParameterMode = True
+                        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #00B0FF;}")
                         self.SerialAgent.write("p".encode())
                         self.SerialAgent.waitForBytesWritten(100)
                         time.sleep(0.01)
@@ -511,25 +568,28 @@ class test_lunch(QtWidgets.QMainWindow):
 
                     self.buttonControl(False)
                 else:
-                    #print("else")
-                    #print(self.parameter_bu.isChecked())
+                    # print("else")
+                    # print(self.parameter_bu.isChecked())
                     if self.ParameterMode:
                         self.terminal.append("End parameter mode")
                         self.SerialAgent.write("x".encode())
                         self.SerialAgent.waitForBytesWritten(100)
                         time.sleep(0.01)
                         self.ParameterMode = False
+                        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
                         self.buttonControl(True)
                         self.parameter_bu.setChecked(False)
             else:
                 self.terminal.append("device is not connected:!!")
-                #self.parameter_bu.setChecked(True)
+                # self.parameter_bu.setChecked(True)
                 self.parameter_bu.setChecked(False)
 
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def buttonControl(self, enable):
         try:
@@ -540,9 +600,11 @@ class test_lunch(QtWidgets.QMainWindow):
             self.clear_bu.setEnabled(enable)
 
         except Exception:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def setTime(self):
         try:
@@ -590,6 +652,7 @@ class test_lunch(QtWidgets.QMainWindow):
                         self.SerialAgent.waitForBytesWritten(100)
                         time.sleep(0.01)
                         self.ParameterMode = False
+                        self.parameter_bu.setStyleSheet("QPushButton {  border-radius: 5px; background-color: #616161; color: #64DD17;}")
                         self.comboBox.setCurrentIndex(0)
                         self.buttonControl(True)
 
@@ -605,9 +668,11 @@ class test_lunch(QtWidgets.QMainWindow):
                     time.sleep(0.01)
 
         except Exception as er:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def exitParameter(self):
         time.sleep(2)
@@ -630,10 +695,14 @@ class test_lunch(QtWidgets.QMainWindow):
                     #     file.write(item)
                     #     file.write('\n')
                     file.close()
+                # self.InfoLogger("fileSave_LOgger: {}".format(self.name))
+
         except Exception as er:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+            # self.DebugLogger(str(exc_value))
 
     def restart(self):
         try:
@@ -650,11 +719,11 @@ class test_lunch(QtWidgets.QMainWindow):
                 sys.exit()
 
         except Exception as er:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-
-
+            # self.DebugLogger(str(exc_value))
 
     def getTime(self, source):
         try:
@@ -690,10 +759,11 @@ class test_lunch(QtWidgets.QMainWindow):
                 return current_time
 
         except Exception as er:
+
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print("*** ErrorDetails:")
             traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-
+            # self.DebugLogger(str(exc_value))
 
 app = QtWidgets.QApplication([])
 win = test_lunch()
