@@ -64,7 +64,8 @@ required = {
     "requests",
     "serial",
     "pyserial",
-    "xlwt"
+    "xlwt",
+    "XlsxWriter"
 }
 
 installed = {pkg.key for pkg in pkg_resources.working_set}
