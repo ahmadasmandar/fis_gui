@@ -17,10 +17,6 @@ import requests
 import logging
 
 #############################
-## Create the Loggers
-
-
-#############################
 
 
 class Cleaner:
